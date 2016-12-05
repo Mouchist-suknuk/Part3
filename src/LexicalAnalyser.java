@@ -477,7 +477,7 @@ class LexicalAnalyser {
 		    	}
 		  	}
 		  	for (int i = firstFilePos; i < argv.length; i++) {
-		    	//LexicalAnalyser scanner = null;
+		    	LexicalAnalyser scanner = null;
 		
 		    	try {
 			  

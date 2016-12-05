@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -11,10 +12,13 @@ public class Parser {
 	private int index = -1;
 	private boolean inBuffer = false;
 	private Map<Integer, String> Rules;
-	
+	private ArrayList<Integer> derivations;
 	public Parser(ArrayList<Symbol> tokenList)
 	{
 		this.tokenList=tokenList;
+		this.derivations=new ArrayList<Integer>();
+		this.Rules=new HashMap<Integer, String>();
+		initActionTable();
 	}
 	
 	protected void read() throws Exception{
@@ -45,20 +49,87 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case INTEGER:
-			
+			this.match(LexicalUnit.INTEGER);
+			this.handle_VARLIST();
+			this.read();
+			this.match(LexicalUnit.ENDLINE);
 			break;
-
+		case END: 
+		case VARNAME:
+		case IF:
+		case DO:
+		case PRINT:
+		case READ:
+			this.unread();
+			break;
+		default:
+			throw new Exception("");
+			
+		}
+	}
+	private void handle_VARLIST() throws Exception{
+		this.read();
+		this.match(LexicalUnit.VARNAME);
+		this.handle_VARLISTTAIL();
+	}
+	private void handle_VARLISTTAIL() throws Exception{
+		this.read();
+		switch (this.token.getType()) {
+		case COMMA:
+			this.match(LexicalUnit.COMMA);
+			this.handle_VARLIST();
+			break;
+		case ENDLINE:
+			this.unread();
+			break;
+		default:
+			throw new Exception("");
+		}
+	}
+	private void handle_CODE() throws Exception{
+		this.read();
+		switch (this.token.getType()) {
+		case VARNAME:
+		case IF:
+		case DO:
+		case PRINT:
+		case READ:
+			this.handle_INSTRUCTION();
+			this.read();
+			this.match(LexicalUnit.ENDLINE);
+			this.handle_CODE();
+			break;
+		case END:
+		case ENDIF:
+		case ELSE:
+		case ENDDO:
+			this.unread();
+			break;
+		default:
+			throw new Exception("");
+		}
+	}
+	private void handle_INSTRUCTION() throws Exception{
+		this.read();
+		switch (this.token.getType()) {
+		case VARNAME:
+			this.handle_ASSIGN();
+			break;
+		case IF: 
+			this.handle_IF();
+			break;
+		case DO:
+			this.handle_DO();
+			break;
+		case PRINT:
+			this.handle_PRINT();
+			break;
+		case READ:
+			this.handle_READ();
+			break;
 		default:
 			break;
 		}
-	}
-	private void handle_VARLIST() throws Exception{ 
-	}
-	private void handle_VARLISTTAIL() throws Exception{ 
-	}
-	private void handle_CODE() throws Exception{ 
-	}
-	private void handle_INSTRUCTION() throws Exception{ 
 	}
 	private void handle_ASSIGN() throws Exception{ 
 	}
@@ -132,7 +203,7 @@ public class Parser {
 		Rules.put(6, "<VarListTail> --> EPSILON");
 		Rules.put(7, "<Code> --> <Instruction> [EndLine] <Code>");
 		Rules.put(8, "<Code> --> EPSILON");
-		Rules.put(9, "<Instruction> --> <Assign>")
+		Rules.put(9, "<Instruction> --> <Assign>");
 		Rules.put(10, "<Instruction> --> <If>");
 		Rules.put(11, "<Instruction> --> <Do>");
 		Rules.put(12, "<Instruction> --> <Print>");
