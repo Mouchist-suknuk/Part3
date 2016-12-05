@@ -750,7 +750,7 @@ class LexicalAnalyser {
     if (!zzEOFDone) {
       zzEOFDone = true;
     	removeLastEndlineToken();
-	printTokens();
+	//printTokens();
 	//printIdentifiers();
 
     }
