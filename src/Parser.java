@@ -9,7 +9,7 @@ public class Parser {
 	protected Symbol token;
 	private LexicalAnalyser scanner;
 	protected ArrayList<Symbol> tokenList;
-	private int index = -1;
+	private int index = 0;
 	private boolean inBuffer = false;
 	private Map<Integer, String> Rules;
 	private ArrayList<Integer> derivations;
@@ -24,7 +24,7 @@ public class Parser {
 	protected void read() throws Exception{
 		if(this.inBuffer ) this.inBuffer = false;
 		else 
-		this.token = tokenList.get(++index);
+		this.token = tokenList.get(index++);
 	}
 	
 	protected void unread() throws Exception{
@@ -32,6 +32,7 @@ public class Parser {
 	}
 	
 	private void handle_PROGRAM() throws Exception{
+		this.derivations.add(1);
 		this.read();
 		this.match(LexicalUnit.PROGRAM);
 		this.read();
@@ -49,6 +50,7 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case INTEGER:
+			this.derivations.add(2);
 			this.match(LexicalUnit.INTEGER);
 			this.handle_VARLIST();
 			this.read();
@@ -60,6 +62,7 @@ public class Parser {
 		case DO:
 		case PRINT:
 		case READ:
+			this.derivations.add(3);
 			this.unread();
 			break;
 		default:
@@ -94,6 +97,7 @@ public class Parser {
 		case DO:
 		case PRINT:
 		case READ:
+			this.derivations.add(7);
 			this.handle_INSTRUCTION();
 			this.read();
 			this.match(LexicalUnit.ENDLINE);
@@ -103,6 +107,7 @@ public class Parser {
 		case ENDIF:
 		case ELSE:
 		case ENDDO:
+			this.derivations.add(8);
 			this.unread();
 			break;
 		default:
@@ -113,33 +118,101 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case VARNAME:
+			this.derivations.add(9);
 			this.handle_ASSIGN();
 			break;
 		case IF: 
+			this.derivations.add(10);
 			this.handle_IF();
 			break;
 		case DO:
+			this.derivations.add(11);
 			this.handle_DO();
 			break;
 		case PRINT:
+			this.derivations.add(12);
 			this.handle_PRINT();
 			break;
 		case READ:
+			this.derivations.add(13);
 			this.handle_READ();
 			break;
 		default:
 			break;
 		}
 	}
-	private void handle_ASSIGN() throws Exception{ 
+	private void handle_ASSIGN() throws Exception{
+		this.derivations.add(14);
+		this.read();
+		this.match(LexicalUnit.VARNAME);
+		this.read();
+		this.match(LexicalUnit.EQUAL);
+		this.handle_EXPRARITH();
 	}
-	private void handle_EXPRARITH() throws Exception{ 
+	private void handle_EXPRARITH() throws Exception{
+		this.derivations.add(15);
+		this.handle_EXPRARITHA();
+		this.handle_EXPRARITHTAIL();
 	}
-	private void handle_EXPRARITHTAIL() throws Exception{ 
+	private void handle_EXPRARITHTAIL() throws Exception{
+		this.read();
+		switch (this.token.getType()) {
+		case PLUS:
+		case MINUS:
+			this.derivations.add(16);
+			this.handle_OPADDMINUS();
+			this.handle_EXPRARITHA();
+			this.handle_EXPLISTTAIL();
+			break;
+		case ENDLINE:
+		case RIGHT_PARENTHESIS:
+		case AND:
+		case OR:
+		case EQUAL_COMPARE:
+		case GREATER:
+		case SMALLER:
+		case SMALLER_EQUAL:
+		case GREATER_EQUAL:
+		case DIFFERENT:
+			this.derivations.add(17);
+			this.unread();
+			break;
+		default:
+			break;
+		}
 	}
-	private void handle_EXPRARITHA() throws Exception{ 
+	
+	private void handle_EXPRARITHA() throws Exception{
+		this.handle_EXPRARITHB();
+		this.handle_EXPRARITHATAIL();
 	}
-	private void handle_EXPRARITHATAIL() throws Exception{ 
+	
+	private void handle_EXPRARITHATAIL() throws Exception{
+		this.read();
+		switch (this.token.getType()) {
+		case TIMES:
+		case DIVIDE:
+			this.handle_OPMULTIDIVIDE();
+			this.handle_EXPRARITHB();
+			this.handle_EXPRARITHATAIL();
+			break;
+		case ENDLINE:
+		case PLUS:
+		case MINUS:
+		case RIGHT_PARENTHESIS:
+		case AND:
+		case OR:
+		case EQUAL_COMPARE:
+		case GREATER:
+		case SMALLER:
+		case SMALLER_EQUAL:
+		case GREATER_EQUAL:
+		case DIFFERENT:
+		case COMMA:
+			this.unread();
+		default:
+			throw new Exception();
+		}
 	}
 	private void handle_OPADDMINUS() throws Exception{ 
 	}
@@ -190,12 +263,16 @@ public class Parser {
 
 	public void parse() throws Exception {
 		this.handle_PROGRAM();
+		for (Integer i: this.derivations)
+		{
+			System.out.println("["+i+"]"+ Rules.get(i));
+		}
 		
 	}
 	
 	private void initActionTable()
 	{
-		Rules.put(1, "<Program> --> PROGRAM [ProgName] [EndLine] <Vars> <Code> END $");
+		Rules.put(1, "<Program> --> PROGRAM [ProgName] [EndLine] <Vars> <Code> END");
 		Rules.put(2, "<Vars> --> INTEGER <VarList> [EndLine]");
 		Rules.put(3, "<Vars> --> EPSILON");
 		Rules.put(4, "<VarList> --> [VarName]<VarListTail>");

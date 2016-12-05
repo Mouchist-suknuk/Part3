@@ -486,6 +486,7 @@ class LexicalAnalyser {
 		      		scanner = new LexicalAnalyser(reader);
 			  		//scanner.inputFile = argv[i];
 		      		while ( !scanner.zzAtEOF ) scanner.yylex();
+		      		this.tokenList=scanner.tokenList;
 		    	}
 		    	catch (java.io.FileNotFoundException e) {
 		      		System.out.println("File not found : \""+argv[i]+"\"");
@@ -500,7 +501,7 @@ class LexicalAnalyser {
 		    	}
 		  	}
 		}
-	   	return this.tokenList;
+	   	return (ArrayList<Symbol>) this.tokenList.clone();
 	}
 	
 	private void printIdentifiers(){
@@ -749,7 +750,7 @@ class LexicalAnalyser {
     if (!zzEOFDone) {
       zzEOFDone = true;
     	removeLastEndlineToken();
-	//printTokens();
+	printTokens();
 	//printIdentifiers();
 
     }
