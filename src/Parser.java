@@ -31,7 +31,7 @@ public class Parser {
 	}
 	
 	private void handle_PROGRAM() throws Exception{
-		this.derivations.add(1);
+		printRule(1);
 		this.read();
 		this.match(LexicalUnit.PROGRAM);
 		this.read();
@@ -43,13 +43,13 @@ public class Parser {
 		this.read();
 		this.match(LexicalUnit.END);
 		//$
-		this.match(null);
+		
 	}
 	private void handle_VARS() throws Exception{
 		this.read();
 		switch (this.token.getType()) {
 		case INTEGER:
-			this.derivations.add(2);
+			printRule(2);
 			this.match(LexicalUnit.INTEGER);
 			this.handle_VARLIST();
 			this.read();
@@ -61,7 +61,7 @@ public class Parser {
 		case DO:
 		case PRINT:
 		case READ:
-			this.derivations.add(3);
+			printRule(3);
 			this.unread();
 			break;
 		default:
@@ -70,7 +70,7 @@ public class Parser {
 		}
 	}
 	private void handle_VARLIST() throws Exception{
-		this.derivations.add(4);
+		printRule(4);
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.handle_VARLISTTAIL();
@@ -79,12 +79,12 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case COMMA:
-			this.derivations.add(5);
+			printRule(5);
 			this.match(LexicalUnit.COMMA);
 			this.handle_VARLIST();
 			break;
 		case ENDLINE:
-			this.derivations.add(6);
+			printRule(6);
 			this.unread();
 			break;
 		default:
@@ -99,7 +99,7 @@ public class Parser {
 		case DO:
 		case PRINT:
 		case READ:
-			this.derivations.add(7);
+			printRule(7);
 			this.handle_INSTRUCTION();
 			this.read();
 			this.match(LexicalUnit.ENDLINE);
@@ -109,7 +109,7 @@ public class Parser {
 		case ENDIF:
 		case ELSE:
 		case ENDDO:
-			this.derivations.add(8);
+			printRule(8);
 			this.unread();
 			break;
 		default:
@@ -120,23 +120,23 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case VARNAME:
-			this.derivations.add(9);
+			printRule(9);
 			this.handle_ASSIGN();
 			break;
 		case IF: 
-			this.derivations.add(10);
+			printRule(10);
 			this.handle_IF();
 			break;
 		case DO:
-			this.derivations.add(11);
+			printRule(11);
 			this.handle_DO();
 			break;
 		case PRINT:
-			this.derivations.add(12);
+			printRule(12);
 			this.handle_PRINT();
 			break;
 		case READ:
-			this.derivations.add(13);
+			printRule(13);
 			this.handle_READ();
 			break;
 		default:
@@ -145,7 +145,7 @@ public class Parser {
 	}
 	
 	private void handle_ASSIGN() throws Exception{
-		this.derivations.add(14);
+		printRule(14);
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.read();
@@ -154,7 +154,7 @@ public class Parser {
 	}
 	
 	private void handle_EXPRARITH() throws Exception{
-		this.derivations.add(15);
+		printRule(15);
 		this.handle_EXPRARITHA();
 		this.handle_EXPRARITHTAIL();
 	}
@@ -164,7 +164,7 @@ public class Parser {
 		switch (this.token.getType()) {
 		case PLUS:
 		case MINUS:
-			this.derivations.add(16);
+			printRule(16);
 			this.handle_OPADDMINUS();
 			this.handle_EXPRARITHA();
 			this.handle_EXPLISTTAIL();
@@ -179,7 +179,7 @@ public class Parser {
 		case SMALLER_EQUAL:
 		case GREATER_EQUAL:
 		case DIFFERENT:
-			this.derivations.add(17);
+			printRule(17);
 			this.unread();
 			break;
 		default:
@@ -188,7 +188,7 @@ public class Parser {
 	}
 	
 	private void handle_EXPRARITHA() throws Exception{
-		this.derivations.add(18);
+		printRule(18);
 		this.handle_EXPRARITHB();
 		this.handle_EXPRARITHATAIL();
 	}
@@ -198,7 +198,7 @@ public class Parser {
 		switch (this.token.getType()) {
 		case TIMES:
 		case DIVIDE:
-			this.derivations.add(19);
+			printRule(19);
 			this.handle_OPMULTIDIVIDE();
 			this.handle_EXPRARITHB();
 			this.handle_EXPRARITHATAIL();
@@ -216,7 +216,7 @@ public class Parser {
 		case GREATER_EQUAL:
 		case DIFFERENT:
 		case COMMA:
-			this.derivations.add(20);
+			printRule(20);
 			this.unread();
 			break;
 		default:
@@ -228,11 +228,11 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case PLUS:
-			this.derivations.add(21);
+			printRule(21);
 			this.match(LexicalUnit.PLUS);
 			break;
 		case MINUS:
-			this.derivations.add(22);
+			printRule(22);
 			this.match(LexicalUnit.MINUS);
 			break;
 
@@ -245,11 +245,11 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case TIMES:
-			this.derivations.add(23);
+			printRule(23);
 			this.match(LexicalUnit.TIMES);
 			break;
 		case DIVIDE:
-			this.derivations.add(24);
+			printRule(24);
 			this.match(LexicalUnit.DIVIDE);
 			break;
 
@@ -262,22 +262,22 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case VARNAME:
-			this.derivations.add(25);
+			printRule(25);
 			this.match(LexicalUnit.VARNAME);
 			break;
 		case NUMBER:
-			this.derivations.add(26);
+			printRule(26);
 			this.match(LexicalUnit.NUMBER);
 			break;
 		case LEFT_PARENTHESIS:
-			this.derivations.add(27);
+			printRule(27);
 			this.match(LexicalUnit.LEFT_PARENTHESIS);
 			this.handle_EXPRARITH();
 			this.read();
 			this.match(LexicalUnit.RIGHT_PARENTHESIS);
 			break;
 		case MINUS:
-			this.derivations.add(28);
+			printRule(28);
 			this.match(LexicalUnit.MINUS);
 			this.handle_EXPRARITH();
 			break;
@@ -287,7 +287,7 @@ public class Parser {
 	}
 	
 	private void handle_IF() throws Exception{
-		this.derivations.add(29);
+		printRule(29);
 		this.read();
 		this.match(LexicalUnit.IF);
 		this.read();
@@ -307,7 +307,7 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case ELSE:
-			this.derivations.add(30);
+			printRule(30);
 			this.match(LexicalUnit.ELSE);
 			this.read();
 			this.match(LexicalUnit.ENDLINE);
@@ -316,7 +316,7 @@ public class Parser {
 			this.match(LexicalUnit.ENDIF);
 			break;
 		case ENDIF:
-			this.derivations.add(31);
+			printRule(31);
 			this.match(LexicalUnit.ENDIF);
 			break;
 		default:
@@ -324,12 +324,12 @@ public class Parser {
 		}
 	}
 	private void handle_COND() throws Exception{
-		this.derivations.add(32);
+		printRule(32);
 		this.handle_CONDA();
 		this.handle_CONDB();
 	}
 	private void handle_CONDA() throws Exception{
-		this.derivations.add(33);
+		printRule(33);
 		this.handle_CONDHEAD();
 		this.handle_SIMPLECOND();
 		this.handle_CONDATAIL();
@@ -339,14 +339,14 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case NOT:
-			this.derivations.add(34);
+			printRule(34);
 			this.match(LexicalUnit.NOT);
 			break;
 		case VARNAME:
 		case NUMBER:
 		case LEFT_PARENTHESIS:
 		case MINUS:
-			this.derivations.add(35);
+			printRule(35);
 			this.unread();
 			break;
 		default:
@@ -358,7 +358,7 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case AND:
-			this.derivations.add(36);
+			printRule(36);
 			this.match(LexicalUnit.AND);
 			this.handle_CONDHEAD();
 			this.handle_SIMPLECOND();
@@ -366,7 +366,7 @@ public class Parser {
 			break;
 		case OR:
 		case RIGHT_PARENTHESIS:
-			this.derivations.add(37);
+			printRule(37);
 			this.unread();
 			break;
 		default:
@@ -378,13 +378,13 @@ public class Parser {
 		this.read();
 		switch (this.token.getType()) {
 		case OR:
-			this.derivations.add(38);
+			printRule(38);
 			this.match(LexicalUnit.OR);
 			this.handle_CONDA();
 			this.handle_CONDB();
 			break;
 		case RIGHT_PARENTHESIS:
-			this.derivations.add(39);
+			printRule(39);
 			this.unread();
 			break;
 		default:
@@ -393,18 +393,114 @@ public class Parser {
 	}
 	
 	private void handle_SIMPLECOND() throws Exception{ 
+		printRule(40);
+		this.handle_EXPRARITH();
+		this.handle_COMP();
+		this.handle_EXPRARITH();
 	}
 	private void handle_COMP() throws Exception{ 
+		this.read();
+		switch (this.token.getType()) {
+		case EQUAL_COMPARE:
+			printRule(41);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		case GREATER_EQUAL:
+			printRule(42);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		case GREATER:
+			printRule(43);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		case SMALLER_EQUAL:
+			printRule(44);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		case SMALLER:
+			printRule(45);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		case DIFFERENT:
+			printRule(46);
+			this.match(LexicalUnit.EQUAL_COMPARE);
+			break;
+		default:
+			handleError(this.derivations.size());
+		}
 	}
 	private void handle_DO() throws Exception{ 
+		this.read();
+		switch (this.token.getType()) {
+		case DO:
+			printRule(47);
+			this.match(LexicalUnit.DO);
+			this.read();
+			this.match(LexicalUnit.EQUAL);
+			this.read();
+			this.match(LexicalUnit.NUMBER);
+			this.read();
+			this.match(LexicalUnit.COMMA);
+			this.read();
+			this.match(LexicalUnit.NUMBER);
+			this.read();
+			this.match(LexicalUnit.ENDLINE);
+			this.handle_CODE();
+			this.read();
+			this.match(LexicalUnit.ENDDO);
+			break;
+		default:
+			handleError(this.derivations.size());
+		}
 	}
 	private void handle_PRINT() throws Exception{ 
+		this.read();
+		switch (this.token.getType()) {
+		case PRINT:
+			printRule(48);
+			this.match(LexicalUnit.PRINT);
+			this.read();
+			this.match(LexicalUnit.COMMA);
+			this.handle_VARLIST();
+			break;
+		default:
+			handleError(this.derivations.size());
+		}
 	}
 	private void handle_READ() throws Exception{ 
+		this.read();
+		switch (this.token.getType()) {
+		case READ:
+			printRule(49);
+			this.match(LexicalUnit.READ);
+			this.read();
+			this.match(LexicalUnit.COMMA);
+			this.handle_VARLIST();
+			break;
+		default:
+			handleError(this.derivations.size());
+		}
 	}
-	private void handle_EXPLIST() throws Exception{ 
+	private void handle_EXPLIST() throws Exception{
+		printRule(50);
+		this.handle_EXPRARITH();
+		this.handle_EXPLISTTAIL();
 	}
 	private void handle_EXPLISTTAIL() throws Exception{ 
+		this.read();
+		switch (this.token.getType()) {
+		case COMMA:
+			printRule(51);
+			this.match(LexicalUnit.COMMA);
+			this.handle_EXPLIST();
+			break;
+		case ENDLINE:
+			printRule(52);
+			this.unread();
+			break;
+		default:
+			handleError(this.derivations.size());
+		}
 	}
 
 	protected void match(LexicalUnit unit) throws Exception{
@@ -479,6 +575,11 @@ public class Parser {
 	}
 	
 
+	private void printRule(int i)
+	{
+		System.out.println("["+i+"]"+ Rules.get(i));
+	}
+	
 	private void handleError(int ruleNumber) throws Exception
 	{
 		throw new Exception("A syntax error occurs at rule ["+ruleNumber+"]");
