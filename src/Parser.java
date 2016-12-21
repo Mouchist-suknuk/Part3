@@ -1,28 +1,36 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 public class Parser {
 
-
+	private int lastRule = 0;
 	protected Symbol token;
 	protected ArrayList<Symbol> tokenList;
 	private int index = 0;
 	private boolean inBuffer = false;
 	private Map<Integer, String> Rules;
-	private int Lastderivations;
+	private ArrayList<Integer> derivations;
 	public Parser(ArrayList<Symbol> tokenList)
 	{
 		this.tokenList=tokenList;
-		//this.derivations=new ArrayList<Integer>();
+		this.derivations=new ArrayList<Integer>();
 		this.Rules=new HashMap<Integer, String>();
 		initActionTable();
+		//for (Symbol s : tokenList) {
+			//System.out.println(s);
+		//}
 	}
 	
 	protected void read() throws Exception{
-		if(this.inBuffer ) this.inBuffer = false;
+		if(this.inBuffer ) {
+			this.inBuffer = false;
+		}
 		else 
-		this.token = tokenList.get(index++);
+		{
+			this.token = tokenList.get(index++);
+		}
 	}
 	
 	protected void unread() throws Exception{
@@ -31,7 +39,6 @@ public class Parser {
 	
 	private void handle_PROGRAM() throws Exception{
 		printRule(1);
-		Lastderivations=1;
 		this.read();
 		this.match(LexicalUnit.PROGRAM);
 		this.read();
@@ -43,6 +50,7 @@ public class Parser {
 		this.read();
 		this.match(LexicalUnit.END);
 		//$
+		System.out.println("Program ended without error");
 		
 	}
 	private void handle_VARS() throws Exception{
@@ -50,7 +58,6 @@ public class Parser {
 		switch (this.token.getType()) {
 		case INTEGER:
 			printRule(2);
-			Lastderivations=2;
 			this.match(LexicalUnit.INTEGER);
 			this.handle_VARLIST();
 			this.read();
@@ -63,7 +70,6 @@ public class Parser {
 		case PRINT:
 		case READ:
 			printRule(3);
-			Lastderivations=3;
 			this.unread();
 			break;
 		default:
@@ -73,7 +79,6 @@ public class Parser {
 	}
 	private void handle_VARLIST() throws Exception{
 		printRule(4);
-		Lastderivations=4;
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.handle_VARLISTTAIL();
@@ -83,13 +88,11 @@ public class Parser {
 		switch (this.token.getType()) {
 		case COMMA:
 			printRule(5);
-			Lastderivations=5;
 			this.match(LexicalUnit.COMMA);
 			this.handle_VARLIST();
 			break;
 		case ENDLINE:
 			printRule(6);
-			Lastderivations=6;
 			this.unread();
 			break;
 		default:
@@ -105,7 +108,6 @@ public class Parser {
 		case PRINT:
 		case READ:
 			printRule(7);
-			Lastderivations=7;
 			this.unread();
 			this.handle_INSTRUCTION();
 			this.read();
@@ -117,10 +119,10 @@ public class Parser {
 		case ELSE:
 		case ENDDO:
 			printRule(8);
-			Lastderivations=8;
 			this.unread();
 			break;
 		default:
+			System.out.println(this.token.getType());
 			handleError();
 		}
 	}
@@ -129,31 +131,26 @@ public class Parser {
 		switch (this.token.getType()) {
 		case VARNAME:
 			printRule(9);
-			Lastderivations=9;
 			this.unread();
 			this.handle_ASSIGN();
 			break;
 		case IF: 
 			printRule(10);
-			Lastderivations=10;
 			this.unread();
 			this.handle_IF();
 			break;
 		case DO:
 			printRule(11);
-			Lastderivations=11;
 			this.unread();
 			this.handle_DO();
 			break;
 		case PRINT:
 			printRule(12);
-			Lastderivations=12;
 			this.unread();
 			this.handle_PRINT();
 			break;
 		case READ:
 			printRule(13);
-			Lastderivations=13;
 			this.unread();
 			this.handle_READ();
 			break;
@@ -164,7 +161,6 @@ public class Parser {
 	
 	private void handle_ASSIGN() throws Exception{
 		printRule(14);
-		Lastderivations=14;
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.read();
@@ -174,7 +170,6 @@ public class Parser {
 	
 	private void handle_EXPRARITH() throws Exception{
 		printRule(15);
-		Lastderivations=15;
 		this.handle_EXPRARITHA();
 		this.handle_EXPRARITHTAIL();
 	}
@@ -185,8 +180,6 @@ public class Parser {
 		case PLUS:
 		case MINUS:
 			printRule(16);
-			Lastderivations=16;
-			this.unread();
 			this.handle_OPADDMINUS();
 			this.handle_EXPRARITHA();
 			this.handle_EXPLISTTAIL();
@@ -203,7 +196,6 @@ public class Parser {
 		case DIFFERENT:
 		case COMMA:
 			printRule(17);
-			Lastderivations=17;
 			this.unread();
 			break;
 		default:
@@ -519,7 +511,6 @@ public class Parser {
 		case COMMA:
 			printRule(51);
 			this.match(LexicalUnit.COMMA);
-			this.unread();
 			this.handle_EXPLIST();
 			break;
 		case ENDLINE:
@@ -537,12 +528,6 @@ public class Parser {
 	
 	public void parse() throws Exception {
 		this.handle_PROGRAM();
-		
-		//Output
-		/*for (Integer i: this.derivations)
-		{
-			System.out.println("["+i+"]"+ Rules.get(i));
-		}*/
 		
 	}
 	
@@ -606,10 +591,12 @@ public class Parser {
 	private void printRule(int i)
 	{
 		System.out.println("["+i+"]"+ Rules.get(i));
+		lastRule = i;
 	}
 	
 	private void handleError() throws Exception
 	{
-		throw new Exception("A syntax error occurs at rule ["+this.Lastderivations+"]");
+		throw new Exception("A syntax error occurs at rule ["+lastRule+"]");
 	}
 }
+

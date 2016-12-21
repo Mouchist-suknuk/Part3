@@ -459,7 +459,7 @@ class LexicalAnalyser {
    * @param argv   the command line, contains the filenames to run
    *               the scanner on.
    */ 
- 	public ArrayList<Symbol> RunScanner(String argv[]) {
+ 	public ArrayList<Symbol>  RunScanner(String argv[]) {
 	   	if (argv.length == 0) {
 			System.out.println("Usage : java LexicalAnalyser [ --encoding <name> ] <inputfile(s)>");
 		}
@@ -487,7 +487,6 @@ class LexicalAnalyser {
 			  		//scanner.inputFile = argv[i];
 		      		while ( !scanner.zzAtEOF ) scanner.yylex();
 		      		this.tokenList=scanner.tokenList;
-		      		
 		    	}
 		    	catch (java.io.FileNotFoundException e) {
 		      		System.out.println("File not found : \""+argv[i]+"\"");
@@ -502,7 +501,7 @@ class LexicalAnalyser {
 		    	}
 		  	}
 		}
-		return tokenList;
+	   	return (ArrayList<Symbol>) this.tokenList.clone();
 	}
 	
 	private void printIdentifiers(){

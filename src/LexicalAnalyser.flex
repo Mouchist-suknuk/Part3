@@ -106,8 +106,7 @@ import java.util.ArrayList;
 		      		scanner = new LexicalAnalyser(reader);
 			  		//scanner.inputFile = argv[i];
 		      		while ( !scanner.zzAtEOF ) scanner.yylex();
-		      		this.tokenList=scanner.tokenList;
-		      		
+					this.tokenList=scanner.tokenList;
 		    	}
 		    	catch (java.io.FileNotFoundException e) {
 		      		System.out.println("File not found : \""+argv[i]+"\"");
