@@ -1,7 +1,7 @@
 <project name="Parser" default="dist" basedir=".">
   <!-- set global properties for this build -->
   <property name="delivery" location="D:/MA-INFO/INFO-F403 - Introduction to language theory and compiling/Project 2/delivery"/>	
-  <property name="src" location="."/>
+  <property name="src" location="./src"/>
   <property name="build" location="${delivery}/build"/>
   <property name="dist" location="${delivery}/dist"/>
   <property name="distjavadoc" location="${delivery}/doc"/>
@@ -15,14 +15,14 @@
 	<mkdir dir="${delivery}"/>
     <mkdir dir="${build}"/>
 	
-	<copydir src="${src}/test" dest="${delivery}/test"/>
+	<!--copydir src="${src}/test" dest="${delivery}/test"/-->
 	<mkdir dir="${more}"/>
 	<delete dir="${distjavadoc}"/>
   </target>
 
   <target name="compile" depends="init"
         description="compile the source">
-	<javadoc sourcefiles=" ${src}/Symbol.java, ${src}/LexicalUnit.java, ${src}/LexicalAnalyser.java" destdir="${distjavadoc}"/>
+	<javadoc sourcefiles=" ${src}/Symbol.java, ${src}/LexicalUnit.java, ${src}/LexicalAnalyser.java, ${src}/Parser.java" destdir="${distjavadoc}"/>
 	<!--  	-->
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}"/>

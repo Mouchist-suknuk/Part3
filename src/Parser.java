@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
 public class Parser {
 
@@ -11,11 +10,11 @@ public class Parser {
 	private int index = 0;
 	private boolean inBuffer = false;
 	private Map<Integer, String> Rules;
-	private ArrayList<Integer> derivations;
+	private int Lastderivations;
 	public Parser(ArrayList<Symbol> tokenList)
 	{
 		this.tokenList=tokenList;
-		this.derivations=new ArrayList<Integer>();
+		//this.derivations=new ArrayList<Integer>();
 		this.Rules=new HashMap<Integer, String>();
 		initActionTable();
 	}
@@ -32,6 +31,7 @@ public class Parser {
 	
 	private void handle_PROGRAM() throws Exception{
 		printRule(1);
+		Lastderivations=1;
 		this.read();
 		this.match(LexicalUnit.PROGRAM);
 		this.read();
@@ -50,6 +50,7 @@ public class Parser {
 		switch (this.token.getType()) {
 		case INTEGER:
 			printRule(2);
+			Lastderivations=2;
 			this.match(LexicalUnit.INTEGER);
 			this.handle_VARLIST();
 			this.read();
@@ -62,15 +63,17 @@ public class Parser {
 		case PRINT:
 		case READ:
 			printRule(3);
+			Lastderivations=3;
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 			
 		}
 	}
 	private void handle_VARLIST() throws Exception{
 		printRule(4);
+		Lastderivations=4;
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.handle_VARLISTTAIL();
@@ -80,15 +83,17 @@ public class Parser {
 		switch (this.token.getType()) {
 		case COMMA:
 			printRule(5);
+			Lastderivations=5;
 			this.match(LexicalUnit.COMMA);
 			this.handle_VARLIST();
 			break;
 		case ENDLINE:
 			printRule(6);
+			Lastderivations=6;
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_CODE() throws Exception{
@@ -100,6 +105,8 @@ public class Parser {
 		case PRINT:
 		case READ:
 			printRule(7);
+			Lastderivations=7;
+			this.unread();
 			this.handle_INSTRUCTION();
 			this.read();
 			this.match(LexicalUnit.ENDLINE);
@@ -110,10 +117,11 @@ public class Parser {
 		case ELSE:
 		case ENDDO:
 			printRule(8);
+			Lastderivations=8;
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_INSTRUCTION() throws Exception{
@@ -121,31 +129,42 @@ public class Parser {
 		switch (this.token.getType()) {
 		case VARNAME:
 			printRule(9);
+			Lastderivations=9;
+			this.unread();
 			this.handle_ASSIGN();
 			break;
 		case IF: 
 			printRule(10);
+			Lastderivations=10;
+			this.unread();
 			this.handle_IF();
 			break;
 		case DO:
 			printRule(11);
+			Lastderivations=11;
+			this.unread();
 			this.handle_DO();
 			break;
 		case PRINT:
 			printRule(12);
+			Lastderivations=12;
+			this.unread();
 			this.handle_PRINT();
 			break;
 		case READ:
 			printRule(13);
+			Lastderivations=13;
+			this.unread();
 			this.handle_READ();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
 	private void handle_ASSIGN() throws Exception{
 		printRule(14);
+		Lastderivations=14;
 		this.read();
 		this.match(LexicalUnit.VARNAME);
 		this.read();
@@ -155,6 +174,7 @@ public class Parser {
 	
 	private void handle_EXPRARITH() throws Exception{
 		printRule(15);
+		Lastderivations=15;
 		this.handle_EXPRARITHA();
 		this.handle_EXPRARITHTAIL();
 	}
@@ -165,6 +185,8 @@ public class Parser {
 		case PLUS:
 		case MINUS:
 			printRule(16);
+			Lastderivations=16;
+			this.unread();
 			this.handle_OPADDMINUS();
 			this.handle_EXPRARITHA();
 			this.handle_EXPLISTTAIL();
@@ -179,11 +201,13 @@ public class Parser {
 		case SMALLER_EQUAL:
 		case GREATER_EQUAL:
 		case DIFFERENT:
+		case COMMA:
 			printRule(17);
+			Lastderivations=17;
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -199,6 +223,7 @@ public class Parser {
 		case TIMES:
 		case DIVIDE:
 			printRule(19);
+			this.unread();
 			this.handle_OPMULTIDIVIDE();
 			this.handle_EXPRARITHB();
 			this.handle_EXPRARITHATAIL();
@@ -220,7 +245,7 @@ public class Parser {
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -237,7 +262,7 @@ public class Parser {
 			break;
 
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -254,7 +279,7 @@ public class Parser {
 			break;
 
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -282,7 +307,7 @@ public class Parser {
 			this.handle_EXPRARITH();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -320,7 +345,7 @@ public class Parser {
 			this.match(LexicalUnit.ENDIF);
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_COND() throws Exception{
@@ -350,7 +375,7 @@ public class Parser {
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -370,7 +395,7 @@ public class Parser {
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -388,7 +413,7 @@ public class Parser {
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	
@@ -407,26 +432,26 @@ public class Parser {
 			break;
 		case GREATER_EQUAL:
 			printRule(42);
-			this.match(LexicalUnit.EQUAL_COMPARE);
+			this.match(LexicalUnit.GREATER_EQUAL);
 			break;
 		case GREATER:
 			printRule(43);
-			this.match(LexicalUnit.EQUAL_COMPARE);
+			this.match(LexicalUnit.GREATER);
 			break;
 		case SMALLER_EQUAL:
 			printRule(44);
-			this.match(LexicalUnit.EQUAL_COMPARE);
+			this.match(LexicalUnit.SMALLER_EQUAL);
 			break;
 		case SMALLER:
 			printRule(45);
-			this.match(LexicalUnit.EQUAL_COMPARE);
+			this.match(LexicalUnit.SMALLER);
 			break;
 		case DIFFERENT:
 			printRule(46);
-			this.match(LexicalUnit.EQUAL_COMPARE);
+			this.match(LexicalUnit.DIFFERENT);
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_DO() throws Exception{ 
@@ -435,6 +460,8 @@ public class Parser {
 		case DO:
 			printRule(47);
 			this.match(LexicalUnit.DO);
+			this.read();
+			this.match(LexicalUnit.VARNAME);
 			this.read();
 			this.match(LexicalUnit.EQUAL);
 			this.read();
@@ -450,7 +477,7 @@ public class Parser {
 			this.match(LexicalUnit.ENDDO);
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_PRINT() throws Exception{ 
@@ -461,10 +488,10 @@ public class Parser {
 			this.match(LexicalUnit.PRINT);
 			this.read();
 			this.match(LexicalUnit.COMMA);
-			this.handle_VARLIST();
+			this.handle_EXPLIST();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_READ() throws Exception{ 
@@ -478,7 +505,7 @@ public class Parser {
 			this.handle_VARLIST();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 	private void handle_EXPLIST() throws Exception{
@@ -492,6 +519,7 @@ public class Parser {
 		case COMMA:
 			printRule(51);
 			this.match(LexicalUnit.COMMA);
+			this.unread();
 			this.handle_EXPLIST();
 			break;
 		case ENDLINE:
@@ -499,22 +527,22 @@ public class Parser {
 			this.unread();
 			break;
 		default:
-			handleError(this.derivations.size());
+			handleError();
 		}
 	}
 
 	protected void match(LexicalUnit unit) throws Exception{
-		if(!this.token.getType().equals(unit)) this.handleError(this.derivations.size());
+		if(!this.token.getType().equals(unit)) this.handleError();
 	}
 	
 	public void parse() throws Exception {
 		this.handle_PROGRAM();
 		
 		//Output
-		for (Integer i: this.derivations)
+		/*for (Integer i: this.derivations)
 		{
 			System.out.println("["+i+"]"+ Rules.get(i));
-		}
+		}*/
 		
 	}
 	
@@ -580,8 +608,8 @@ public class Parser {
 		System.out.println("["+i+"]"+ Rules.get(i));
 	}
 	
-	private void handleError(int ruleNumber) throws Exception
+	private void handleError() throws Exception
 	{
-		throw new Exception("A syntax error occurs at rule ["+ruleNumber+"]");
+		throw new Exception("A syntax error occurs at rule ["+this.Lastderivations+"]");
 	}
 }
